@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MineSweeper Game</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <h1>MineSweeper Game</h1>
+    <table>
+        {% for i in range(data.shape[0]) %}
+            <tr>
+                {% for j in range(data.shape[1]) %}
+                    <td>
+                        <div style="height: 55px; width: 55px">
+                            {% if data[i,j].value == -1 %}
+                                <img src="static/assets/mine.png">
+                            {% elif data[i,j].value == 0 %}
+                            {% else %}
+                                <div class="digit">
+                                    {{data[i,j]}}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
