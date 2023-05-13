@@ -6,15 +6,18 @@ game = None
 
 @app.route("/", methods=['GET','POST'])
 def home():
+    global game
     if request.method == 'GET':
-        global game
         game = Game()
     if request.method == 'POST':
         row = int(request.form['row'])
         col = int(request.form['col'])
-        cell = game.board[row, col]
-        cell.visible = True
-    return render_template('home.html', data=game.board)
+        if request.form.get('flag'):
+            game.board[row, col].flag = True
+        else:
+            game.stack = []
+            game.check_selection(row, col)
+    return render_template('home.html', data=game.board, playing=game.playing)
 
 if __name__ == '__main__':
     app.run(debug=True)

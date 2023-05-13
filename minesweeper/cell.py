@@ -5,6 +5,7 @@ class Cell:
         self.col = col
         self.value = value
         self.visible = False
+        self.flag = False
 
     def __repr__(self):
         return str(self.value)

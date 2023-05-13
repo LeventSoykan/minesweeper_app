@@ -21,8 +21,11 @@
                                         {{data[i,j]}}
                                     </div>
                                 {% endif %}
-                            {% else %}
-                                <form action="/" class="field-button" method="post" name="" onClick="this.submit();">
+                            {% elif playing %}
+                                <form action="/" class="field-button" cell-form="" method="post" onClick="this.submit();">
+                                    {% if data[i,j].flag %}
+                                        <input type="image" src="static/assets/flag.png">
+                                    {% endif %}
                                     <input type="hidden" name="row" value="{{ i }}">
                                     <input type="hidden" name="col" value="{{ j }}">
                                 </form>
@@ -33,5 +36,20 @@
             </tr>
         {% endfor %}
     </table>
+    <script>
+        const cellForms = document.querySelectorAll("[cell-form]")
+
+        for (let i = 0; i < cellForms.length; i++) {
+            cellForms[i].addEventListener("contextmenu", function (event) {
+                event.preventDefault(); // prevent default right-click behavior
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "flag";
+                input.value = "1";
+                this.appendChild(input); // put it into the DOM
+                this.submit();
+            })
+        }
+    </script>
 </body>
 </html>
