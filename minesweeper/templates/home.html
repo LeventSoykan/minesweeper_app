@@ -13,13 +13,19 @@
                 {% for j in range(data.shape[1]) %}
                     <td>
                         <div style="height: 55px; width: 55px">
-                            {% if data[i,j].value == -1 %}
-                                <img src="static/assets/mine.png">
-                            {% elif data[i,j].value == 0 %}
+                            {% if data[i,j].visible %}
+                                {% if data[i,j].value == -1 %}
+                                    <img src="static/assets/mine.png">
+                                {% elif data[i,j].value != 0 %}
+                                    <div class="digit">
+                                        {{data[i,j]}}
+                                    </div>
+                                {% endif %}
                             {% else %}
-                                <div class="digit">
-                                    {{data[i,j]}}
-                                </div>
+                                <form action="/" class="field-button" method="post" name="" onClick="this.submit();">
+                                    <input type="hidden" name="row" value="{{ i }}">
+                                    <input type="hidden" name="col" value="{{ j }}">
+                                </form>
                             {% endif %}
                         </div>
                     </td>
