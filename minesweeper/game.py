@@ -12,6 +12,7 @@ class Game:
         self.create_game()
         self.playing = True
         self.stack = []
+        # self.first_click = False
 
     def create_game(self):
         #Place mines

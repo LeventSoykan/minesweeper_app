@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Minesweeper</title>
+    <style>
+      .cell {
+        width: 30px;
+        height: 30px;
+        border: 1px solid black;
+        text-align: center;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Minesweeper</h1>
+    <table id="board"></table>
+    <p>Time: <span id="timer">0</span> seconds</p>
+
+    <script>
+      const size = 10; // size of the board
+      const mineCount = 10; // number of mines
+
+      let board = [];
+      let revealed = [];
+      let mines = [];
+      let timerInterval;
+      let timeElapsed = 0;
+
+      // Initialize the game
+      function initializeGame() {
+        createBoard();
+        placeMines();
+        startTimer();
+      }
+
+      // Create the game board
+        function createBoard() {
+          const boardElement = document.getElementById('board');
+          for (let row = 0; row < size; row++) {
+            const tr = document.createElement('tr');
+            let boardRow = [];
+            let revealedRow = [];
+            for (let col = 0; col < size; col++) {
+              const td = document.createElement('td');
+              td.className = 'cell';
+              td.setAttribute('data-row', row);
+              td.setAttribute('data-col', col);
+              td.addEventListener('click', handleCellClick);
+              td.addEventListener('contextmenu', handleCellClick);
+              tr.appendChild(td);
+              boardRow.push(td);
+              revealedRow.push(false);
+            }
+            boardElement.appendChild(tr);
+            board.push(boardRow);
+            revealed.push(revealedRow);
+          }
+        }
+
+      // Place mines randomly on the board
+      function placeMines() {
+        let count = 0;
+        while (count < mineCount) {
+          const row = Math.floor(Math.random() * size);
+          const col = Math.floor(Math.random() * size);
+          if (!mines.includes(`${row},${col}`)) {
+            mines.push(`${row},${col}`);
+            count++;
+          }
+        }
+      }
+
+      // Start the timer
+      function startTimer() {
+        timerInterval = setInterval(() => {
+          timeElapsed++;
+          document.getElementById('timer').textContent = timeElapsed;
+        }, 1000);
+      }
+
+      // Reveal a cell
+        function revealCell(row, col) {
+          if (revealed[row][col]) {
+            return; // Ignore if the cell is already revealed
+          }
+
+          const cell = board[row][col];
+          const isMine = mines.includes(`${row},${col}`);
+          revealed[row][col] = true;
+
+          cell.removeEventListener('click', handleCellClick);
+          cell.style.backgroundColor = '#ddd';
+          cell.style.cursor = 'default';
+
+          if (isMine) {
+            gameOver();
+          } else {
+            const count = countAdjacentMines(row, col);
+            if (count > 0) {
+              cell.textContent = count;
+            } else {
+              revealAdjacentCells(row, col);
+            }
+          }
+        }
+
+      // Count adjacent mines
+      function countAdjacentMines(row, col) {
+        let count = 0;
+        for (let i = row - 1; i <= row + 1; i++) {
+          for (let j = col - 1; j <= col + 1; j++) {
+            if (i >= 0 && i < size && j >= 0 && j < size && mines.includes(`${i},${j}`)) {
+              count++;
+            }
+          }
+        }
+        return count;
+      }
+
+      // Reveal adjacent cells
+      function revealAdjacentCells(row, col) {
+        for (let i = row - 1; i <= row + 1; i++) {
+          for (let j = col - 1; j <= col + 1; j++) {
+            if (i >= 0 && i < size && j >= 0 && j < size) {
+              revealCell(i, j);
+            }
+          }
+        }
+      }
+
+      // Game over
+        function gameOver() {
+          clearInterval(timerInterval);
+
+          // Reveal all cells
+          for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+               const cell = board[row][col];
+               const isMine = mines.includes(`${row},${col}`);
+
+              if (!revealed[row][col]) {
+                if (isMine) {
+                  // Clear any existing content
+                  cell.innerHTML = '';
+
+                  const mineImage = new Image();
+                  mineImage.src = 'static/assets/mine.png'; // Replace with the path to your mine image
+                  mineImage.style.width = '100%'; // Adjust the width as needed
+                  mineImage.style.height = '100%'; // Adjust the height as needed
+                  cell.appendChild(mineImage);
+                } else {
+                  let count = countAdjacentMines(row, col);
+                  if (count > 0) {
+                    cell.textContent = count;
+                  }
+                }
+
+                cell.removeEventListener('click', handleCellClick);
+                cell.style.backgroundColor = '#ddd';
+                cell.style.cursor = 'default';
+                revealed[row][col] = true;
+              }
+            }
+          }
+
+  // ...
+}
+
+      // Reset the game
+      function resetGame() {
+        const boardElement = document.getElementById('board');
+        boardElement.innerHTML = '';
+        board = [];
+        revealed = [];
+        mines = [];
+        timeElapsed = 0;
+        document.getElementById('timer').textContent = timeElapsed;
+        initializeGame();
+      }
+
+    // Handle cell click
+    function handleCellClick(event) {
+      const row = parseInt(event.target.getAttribute('data-row'));
+      const col = parseInt(event.target.getAttribute('data-col'));
+      const isImage = event.target.nodeName.toLowerCase() === 'img';
+
+
+      if (event.type === 'click') {
+        // Left-click
+        if (!revealed[row][col]) {
+          revealCell(row, col);
+        }
+      } else if (event.type === 'contextmenu') {
+        // Right-click
+        event.preventDefault(); // Prevent context menu
+
+        if (isImage) {
+          // If the event target is the image element, find the parent cell
+          const cell = event.target.parentNode;
+          console.log(event.target)
+          const cellRow = parseInt(cell.getAttribute('data-row'));
+          const cellCol = parseInt(cell.getAttribute('data-col'));
+          toggleFlag(cellRow, cellCol);
+        } else {
+          // If the event target is the cell element, directly toggle the flag
+          if (!revealed[row][col]) {
+          toggleFlag(row, col);
+        }
+        }
+      }
+
+    }
+
+    // Toggle flag on a cell
+    function toggleFlag(row, col) {
+      const cell = board[row][col];
+      if (cell.classList.contains('flagged')) {
+        // Remove flag
+        cell.classList.remove('flagged');
+        cell.innerHTML = '';
+      } else {
+        // Add flag
+        cell.classList.add('flagged');
+        const flagImage = document.createElement('img');
+        flagImage.src = 'static/assets/flag.png'; // Replace with the path to your flag image
+        flagImage.style.width = '100%'; // Adjust the width as needed
+        flagImage.style.height = '100%'; // Adjust the height as needed
+        cell.innerHTML = ''; // Clear any existing content
+        cell.appendChild(flagImage);
+      }
+    }
+
+      // Start the game
+      initializeGame();
+    </script>
+  </body>
+</html>
+

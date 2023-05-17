@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <title>MineSweeper Game</title>
     <link rel="stylesheet" href="static/style.css">
+    <script src="{{ url_for('static', filename='timer.js') }}"></script>
 </head>
 <body>
     <h1>MineSweeper Game</h1>
+
+    <div id="MyClockDisplay" class="clock"></div>
+    <button onclick="showTime()">Timer</button>
+
+
+<!--    {% macro board(data, playing) %}-->
     <table>
         {% for i in range(data.shape[0]) %}
             <tr>
@@ -26,6 +33,9 @@
                                     {% if data[i,j].flag %}
                                         <input type="image" src="static/assets/flag.png">
                                     {% endif %}
+<!--                                    {% if not first %}-->
+<!--                                        <input type="hidden" name="first" value="True">-->
+<!--                                    {% endif %}-->
                                     <input type="hidden" name="row" value="{{ i }}">
                                     <input type="hidden" name="col" value="{{ j }}">
                                 </form>
@@ -36,6 +46,10 @@
             </tr>
         {% endfor %}
     </table>
+<!--    {% endmacro %}-->
+
+<!--    {{board(data, playing)}}-->
+
     <script>
         const cellForms = document.querySelectorAll("[cell-form]")
 
@@ -49,6 +63,7 @@
                 this.appendChild(input); // put it into the DOM
                 this.submit();
             })
+
         }
     </script>
 </body>
